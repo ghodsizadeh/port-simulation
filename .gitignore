@@ -1,0 +1,11 @@
+venv/
+.vscode/
+*.pyc
+__pycache__/
+.pytest_cache/
+*.egg-info
+dist/
+build/
+*.log
+*.DS_Store
+warehouse.py
