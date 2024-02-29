@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+import logging
 
 SIMULATION_TIME_IN_MINUTES = 60 * 12
 
@@ -17,7 +17,11 @@ class Config:
     truck_count: int = 3
     truck_time_in_minutes: int = 6
 
+    log_level: int = logging.INFO
+
     simulation_time_in_minutes: int = SIMULATION_TIME_IN_MINUTES
+
+
 
 
 config = Config()
