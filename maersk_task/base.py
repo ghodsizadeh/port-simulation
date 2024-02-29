@@ -14,7 +14,7 @@ class SimpyResourceABC(ABC):
         pass
 
     @abstractmethod
-    def run(self) -> None:
+    def run(self):
         """
         This method is responsible for running the process.
         """
@@ -44,7 +44,7 @@ class VesselABC(SimpyResourceABC):
         pass
 
 
-class Crane(SimpyResourceABC):
+class CraneABC(SimpyResourceABC):
     @abstractmethod
     def interact_with_berth(self, berth: simpy.Resource, vessel: VesselABC) -> None:
         """ 
@@ -56,10 +56,10 @@ class Crane(SimpyResourceABC):
         pass
 
 
-class Truck(SimpyResourceABC):
+class TruckABC(SimpyResourceABC):
     truck_pool: int = 0
     @abstractmethod
-    def interact_with_crane(self, crane: Crane) -> None:
+    def interact_with_crane(self, crane: CraneABC) -> None:
         """
         This method is responsible for the interaction between the truck and the crane.
         Args:

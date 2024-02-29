@@ -5,7 +5,7 @@ SIMULATION_TIME_IN_MINUTES = 60
 
 @dataclass(slots=True, frozen=True)
 class Config:
-    vessel_average_in_minutes: int = 5 * 60
+    vessel_average_in_minutes: int = 5 * 6
 
     berth_count: int = 2
 
