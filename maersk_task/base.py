@@ -1,6 +1,6 @@
 # create an abstract class for the all the simpy resources that will be used in the simulation
 import simpy
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 
 
 class SimpyResourceABC(ABC):
@@ -44,7 +44,8 @@ class VesselABC(SimpyResourceABC):
         """
         pass
             
-    @abstractproperty
+    @property
+    @abstractmethod
     def is_empty(self) -> bool:
         """
         This property is responsible for checking if the container is empty.
