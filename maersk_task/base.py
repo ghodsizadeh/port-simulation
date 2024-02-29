@@ -1,6 +1,6 @@
 # create an abstract class for the all the simpy resources that will be used in the simulation
 import simpy
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 
 
 class SimpyResourceABC(ABC):
@@ -21,11 +21,12 @@ class SimpyResourceABC(ABC):
         pass
 
 
+
 class VesselABC(SimpyResourceABC):
     vessel_count: int = 0
 
     @abstractmethod
-    def interact_with_berth(self, berth: simpy.Resource) -> None:
+    def interact_with_berth(self, berth: simpy.Resource) :
         """
         This method is responsible for the interaction between the vessel and the berth.
         Args:
@@ -34,7 +35,7 @@ class VesselABC(SimpyResourceABC):
         pass
     @classmethod
     @abstractmethod
-    def vessel_arrival(cls, env: simpy.Environment, *args, **kwargs) -> None:
+    def vessel_arrival(cls, env: simpy.Environment, *args, **kwargs) :
         """ 
         This method is responsible for the arrival of the vessel
         and starting point of the simulation.
@@ -42,15 +43,21 @@ class VesselABC(SimpyResourceABC):
             env (simpy.Environment): The simulation environment.
         """
         pass
+            
+    @abstractproperty
+    def is_empty(self) -> bool:
+        """
+        This property is responsible for checking if the container is empty.
+        """
+        pass
 
 
 class CraneABC(SimpyResourceABC):
     @abstractmethod
-    def interact_with_berth(self, berth: simpy.Resource, vessel: VesselABC) -> None:
+    def interact_with_vessel_and_truck(self,  vessel: VesselABC, truck: "TruckABC") :
         """ 
         This method is responsible for the interaction between the crane and the berth/vessel.
         Args:
-            berth (simpy.Resource): The berth resource.
             vessel (VesselABC): The vessel resource.
         """
         pass
@@ -59,7 +66,7 @@ class CraneABC(SimpyResourceABC):
 class TruckABC(SimpyResourceABC):
     truck_pool: int = 0
     @abstractmethod
-    def interact_with_crane(self, crane: CraneABC) -> None:
+    def interact_with_crane(self, crane: CraneABC) :
         """
         This method is responsible for the interaction between the truck and the crane.
         Args:

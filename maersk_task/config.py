@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 
 
-SIMULATION_TIME_IN_MINUTES = 60
+SIMULATION_TIME_IN_MINUTES = 60 * 12
+
 
 @dataclass(slots=True, frozen=True)
 class Config:
-    vessel_average_in_minutes: int = 5 * 6
+    vessel_average_in_minutes: int = 5 * 60
+    vessel_container_capacity: int = 150
 
     berth_count: int = 2
 
@@ -16,8 +18,6 @@ class Config:
     truck_time_in_minutes: int = 6
 
     simulation_time_in_minutes: int = SIMULATION_TIME_IN_MINUTES
-    
-
 
 
 config = Config()
