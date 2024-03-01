@@ -9,6 +9,10 @@ class Config:
     vessel_average_in_minutes: int = 5 * 60 
     vessel_container_capacity: int = 150
 
+    vessels_in_start: int = 1
+
+
+
     berth_count: int = 2
 
     # crane count should be equal to the berth count
