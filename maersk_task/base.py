@@ -65,12 +65,4 @@ class CraneABC(SimpyResourceABC):
 
 
 class TruckABC(SimpyResourceABC):
-    truck_pool: int = 0
-    @abstractmethod
-    def interact_with_crane(self, crane: CraneABC) :
-        """
-        This method is responsible for the interaction between the truck and the crane.
-        Args:
-            crane (Crane): The crane resource.
-        """
-        pass
+    pass

@@ -23,6 +23,7 @@ class Vessel(VesselABC):
         self.env: simpy.Environment = env
         self.port: "Port" = port
         Vessel.vessel_count += 1
+        self.port.report.vessel_count = Vessel.vessel_count
         self.name = f"Vessel {Vessel.vessel_count}"
         self.containers: simpy.Container = simpy.Container(
             env,
@@ -49,6 +50,7 @@ class Vessel(VesselABC):
             yield request_berth
             yield request_crane
             waiting_time = self.env.now - self.arrival_time
+            self.port.report.total_waiting_time += waiting_time
             logging.critical(f"{self.name} waited for {waiting_time:.2f} minutes")
 
             logging.info(f"{self.name} is berthing {self.env.now:.2f}")
@@ -65,6 +67,7 @@ class Vessel(VesselABC):
             yield env.timeout(next_arrival)
             
             Vessel(env, port)
+           
 
     @property
     def is_empty(self) -> bool:
@@ -95,13 +98,54 @@ class Crane(CraneABC):
         logging.info(f"{self.name} is unloading {self.env.now:.2f}")
         start_time = self.env.now
         while not vessel.is_empty:
-            yield self.env.timeout(self.process_time)
-            vessel.containers.get(1)
+            with self.port.truck.request() as request_truck:
+                yield request_truck
+                truck = Truck(self.env, self.port)
+                yield self.env.process(truck.run())
+                vessel.containers.get(1)
+                # yield self.env.process(truck.run())
+
         logging.info(f"{self.name} is Done   {self.env.now:.2f}")
         logging.info(
             f"{self.name} took {self.env.now - start_time} minutes to unload the vessel"
         )
 
+
+class Truck(TruckABC):
+    truck_resource: simpy.Resource = simpy.Resource(env, capacity=config.truck_count)
+    truck_count: int = 0
+    def __init__(self, env: simpy.Environment,  port: "Port"):
+        self.env: simpy.Environment = env
+        
+        self.port: "Port" = port
+        Truck.truck_count += 1
+        self.name = f"Truck {Truck.truck_count%config.truck_count + 1}"
+        # self.action: simpy.Process = env.process(self.run())
+
+    def run(self):
+        '''
+        Pickup the container from the port and comeback in truck_time_in_minutes
+        '''
+        logging.debug(f"{self.name} is requesting container {self.env.now:.2f}")
+        yield self.env.timeout(config.truck_time_in_minutes)
+        # self.port.truck.release(self)
+
+
+@dataclass(slots=True)
+class Report:
+    """
+    Report class to keep track of the simulation.
+    """
+    vessel_count: int = 0
+    total_waiting_time: float = 0
+
+
+    @property
+    def average_waiting_time(self) -> float:
+        return self.total_waiting_time / self.vessel_count
+    
+
+        
 
 @dataclass(slots=True)
 class Port:
@@ -112,13 +156,18 @@ class Port:
     env: simpy.Environment
     berth: simpy.Resource
     crane: simpy.Resource
-    # trucks: list[Truck]
+    truck: simpy.Resource
+
+    report: Report
+    
 
 
 berth: simpy.Resource = simpy.Resource(env, capacity=config.berth_count)
 
 
-port = Port(env, berth, Crane.crane_resource)
+port = Port(env, berth, Crane.crane_resource, Truck.truck_resource, Report())
 vessel = Vessel(env, port)
 env.process(Vessel.vessel_arrival(env, port))
 env.run(until=config.simulation_time_in_minutes)
+
+print(port.report,"average_waiting_time ~=",port.report.average_waiting_time//60)
