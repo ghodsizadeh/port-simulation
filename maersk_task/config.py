@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import logging
 
-SIMULATION_TIME_IN_MINUTES = 60 * 24 * 70
+SIMULATION_TIME_IN_MINUTES = 60 * 24 * 7
 
 
 @dataclass(slots=True, frozen=True)
@@ -16,7 +16,7 @@ class Config:
     berth_count: int = 2
 
     # crane count should be equal to the berth count
-    crane_count: int = 2 
+    crane_count: int = 2
     crane_time_in_minutes: int = 3
 
     truck_count: int = 3
@@ -26,6 +26,9 @@ class Config:
     log_level: int = logging.INFO
 
     simulation_time_in_minutes: int = SIMULATION_TIME_IN_MINUTES
+
+    def __post_init__(self):
+        assert self.crane_count == self.berth_count, "Crane count should be equal to the berth count"
 
 
 

@@ -45,19 +45,20 @@ class Vessel(VesselABC):
     def interact_with_berth(self, berth: simpy.Resource):
         
 
+    
+            with self.port.berth.request() as request_berth, self.port.crane.request() as request_crane:
+                yield request_berth
+                yield request_crane
+                waiting_time = self.env.now - self.arrival_time
+                self.port.report.total_waiting_time += waiting_time
+                logging.critical(f"{self.name} waited for {waiting_time:.2f} minutes")
 
-        with self.port.berth.request() as request_berth, self.port.crane.request() as request_crane:
-            yield request_berth
-            yield request_crane
-            waiting_time = self.env.now - self.arrival_time
-            self.port.report.total_waiting_time += waiting_time
-            logging.critical(f"{self.name} waited for {waiting_time:.2f} minutes")
-
-            logging.info(f"{self.name} is berthing {self.env.now:.2f}")
-            # simulate attaching the crane to the vessel
-            # actually, we assign the free crane to the vessel
-            crane = Crane(self.env, self.port, self)
-            yield self.env.process(crane.run())
+                logging.info(f"{self.name} is berthing {self.env.now:.2f}")
+                # simulate attaching the crane to the vessel
+                # actually, we assign the free crane to the vessel
+                crane = Crane(self.env, self.port, self)
+                yield self.env.process(crane.run())
+            self.port.report.vessel_done += 1
 
     @classmethod
     def vessel_arrival(cls, env: simpy.Environment, port: "Port"):
@@ -137,12 +138,25 @@ class Report:
     Report class to keep track of the simulation.
     """
     vessel_count: int = 0
+    vessel_done: int = 0
+
+    # this is the total waiting time of all the vessels that went through the port
+    # because we don't know the waiting time of the vessels that are still in the queue
     total_waiting_time: float = 0
 
 
     @property
     def average_waiting_time(self) -> float:
-        return self.total_waiting_time / self.vessel_count
+        return self.total_waiting_time / self.vessel_done if self.vessel_done else 0
+
+    @property
+    def remaining_vessels(self) -> int:
+        return self.vessel_count - self.vessel_done
+    def __str__(self):
+        return f"""Vessels: {self.vessel_count}
+Vessels Done: {self.vessel_done}
+Vessels in Queue: {self.remaining_vessels}
+Average waiting time: {self.average_waiting_time:.0f} minutes |  {self.average_waiting_time//(60*24):.0f} days {self.average_waiting_time//60:.0f} hours and {self.average_waiting_time%60:.0f} minutes"""
     
 
         
@@ -159,6 +173,7 @@ class Port:
     truck: simpy.Resource
 
     report: Report
+
     
 
 

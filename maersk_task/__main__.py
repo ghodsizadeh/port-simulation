@@ -20,10 +20,11 @@ def setup(env: simpy.Environment, config: Config):
     env.run(until=config.simulation_time_in_minutes)
 
 
-    print(f"""\033[92mDuration: {config.simulation_time_in_minutes//60} hours and {config.simulation_time_in_minutes%60} minutes
+    print(f"""\033[92m{"="*30} Simulation Report {"="*30}
+Duration:  { config.simulation_time_in_minutes//(60*24) } days {config.simulation_time_in_minutes//60} hours and {config.simulation_time_in_minutes%60} minutes
 {port.report}
-average_waiting_time(hours) ~=,{port.report.average_waiting_time//60}\033[0m
-    """)
+{"="*79}
+\033[0m""")
     
 
 
