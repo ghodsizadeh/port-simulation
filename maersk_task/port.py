@@ -16,6 +16,7 @@ env: simpy.Environment = simpy.Environment()
 
 
 class Vessel(VesselABC):
+    # keep track of the number of vessels created
     vessel_count: int = 0
 
     def __init__(self, env: simpy.Environment, port: "Port"):
@@ -169,12 +170,3 @@ class Port:
     report: Report
 
 
-# berth: simpy.Resource = simpy.Resource(env, capacity=config.berth_count)
-
-
-# port = Port(env, berth, Crane.crane_resource, Truck.truck_resource, Report())
-# vessel = Vessel(env, port)
-# env.process(Vessel.vessel_arrival(env, port))
-# env.run(until=config.simulation_time_in_minutes)
-
-# print(port.report,"average_waiting_time ~=",port.report.average_waiting_time//60)

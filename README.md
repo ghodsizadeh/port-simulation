@@ -58,4 +58,9 @@ In the [base.py](maersk_task/base.py) file, you can find abstract classes. These
 - For the berth, I used a simple `simpy.Resource` to monitor the availability of the berth.
 - The `Vessel` class has a `vessel_arrival` method that handles the arrival of the new vessel.
 
-![Diagram](doc/image.png)
+![Diagram](doc/diagram.png)
+
+## Simulation Output
+The simulation report should look like this:
+![alt text](doc/simulation-report.png)
+<!-- ![alt text](image.png) -->
