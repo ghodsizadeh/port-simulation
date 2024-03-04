@@ -5,8 +5,7 @@ from dataclasses import dataclass
 import random
 import logging
 
-logging.basicConfig(level=config.log_level,
-                    format="%(levelname)s - %(message)s")    
+logging.basicConfig(level=config.log_level, format="%(levelname)s - %(message)s")
 
 
 # add loging name for the critcal logs and warning logs with red and yellow color
@@ -31,7 +30,6 @@ class Vessel(VesselABC):
             capacity=config.vessel_container_capacity,
         )
 
-        
         logging.warning(f"{self.name} arrived at {self.env.now:.2f}")
         self.arrival_time = self.env.now
 
@@ -43,22 +41,19 @@ class Vessel(VesselABC):
         logging.info(f"{self.name} is leaving {self.env.now:.2f}")
 
     def interact_with_berth(self, berth: simpy.Resource):
-        
+        with self.port.berth.request() as request_berth, self.port.crane.request() as request_crane:
+            yield request_berth
+            yield request_crane
+            waiting_time = self.env.now - self.arrival_time
+            self.port.report.total_waiting_time += waiting_time
+            logging.critical(f"{self.name} waited for {waiting_time:.2f} minutes")
 
-    
-            with self.port.berth.request() as request_berth, self.port.crane.request() as request_crane:
-                yield request_berth
-                yield request_crane
-                waiting_time = self.env.now - self.arrival_time
-                self.port.report.total_waiting_time += waiting_time
-                logging.critical(f"{self.name} waited for {waiting_time:.2f} minutes")
-
-                logging.info(f"{self.name} is berthing {self.env.now:.2f}")
-                # simulate attaching the crane to the vessel
-                # actually, we assign the free crane to the vessel
-                crane = Crane(self.env, self.port, self)
-                yield self.env.process(crane.run())
-            self.port.report.vessel_done += 1
+            logging.info(f"{self.name} is berthing {self.env.now:.2f}")
+            # simulate attaching the crane to the vessel
+            # actually, we assign the free crane to the vessel
+            crane = Crane(self.env, self.port, self)
+            yield self.env.process(crane.run())
+        self.port.report.vessel_done += 1
 
     @classmethod
     def vessel_arrival(cls, env: simpy.Environment, port: "Port"):
@@ -66,9 +61,8 @@ class Vessel(VesselABC):
             next_arrival = random.expovariate(1 / config.vessel_average_in_minutes)
             logging.warning(f"next arrival in {next_arrival:.2f} minutes")
             yield env.timeout(next_arrival)
-            
+
             Vessel(env, port)
-           
 
     @property
     def is_empty(self) -> bool:
@@ -115,18 +109,19 @@ class Crane(CraneABC):
 class Truck(TruckABC):
     truck_resource: simpy.Resource = simpy.Resource(env, capacity=config.truck_count)
     truck_count: int = 0
-    def __init__(self, env: simpy.Environment,  port: "Port"):
+
+    def __init__(self, env: simpy.Environment, port: "Port"):
         self.env: simpy.Environment = env
-        
+
         self.port: "Port" = port
         Truck.truck_count += 1
         self.name = f"Truck {Truck.truck_count%config.truck_count + 1}"
         # self.action: simpy.Process = env.process(self.run())
 
     def run(self):
-        '''
+        """
         Pickup the container from the port and comeback in truck_time_in_minutes
-        '''
+        """
         logging.debug(f"{self.name} is requesting container {self.env.now:.2f}")
         yield self.env.timeout(config.truck_time_in_minutes)
         # self.port.truck.release(self)
@@ -137,13 +132,13 @@ class Report:
     """
     Report class to keep track of the simulation.
     """
+
     vessel_count: int = 0
     vessel_done: int = 0
 
     # this is the total waiting time of all the vessels that went through the port
     # because we don't know the waiting time of the vessels that are still in the queue
     total_waiting_time: float = 0
-
 
     @property
     def average_waiting_time(self) -> float:
@@ -152,14 +147,13 @@ class Report:
     @property
     def remaining_vessels(self) -> int:
         return self.vessel_count - self.vessel_done
+
     def __str__(self):
         return f"""Vessels: {self.vessel_count}
 Vessels Done: {self.vessel_done}
 Vessels in Queue: {self.remaining_vessels}
 Average waiting time: {self.average_waiting_time:.0f} minutes |  {self.average_waiting_time//(60*24):.0f} days {self.average_waiting_time//60:.0f} hours and {self.average_waiting_time%60:.0f} minutes"""
-    
 
-        
 
 @dataclass(slots=True)
 class Port:
@@ -173,8 +167,6 @@ class Port:
     truck: simpy.Resource
 
     report: Report
-
-    
 
 
 # berth: simpy.Resource = simpy.Resource(env, capacity=config.berth_count)

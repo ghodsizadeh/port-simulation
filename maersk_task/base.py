@@ -21,29 +21,29 @@ class SimpyResourceABC(ABC):
         pass
 
 
-
 class VesselABC(SimpyResourceABC):
     vessel_count: int = 0
 
     @abstractmethod
-    def interact_with_berth(self, berth: simpy.Resource) :
+    def interact_with_berth(self, berth: simpy.Resource):
         """
         This method is responsible for the interaction between the vessel and the berth.
         Args:
             berth (simpy.Resource): The berth resource.
         """
         pass
+
     @classmethod
     @abstractmethod
-    def vessel_arrival(cls, env: simpy.Environment, *args, **kwargs) :
-        """ 
+    def vessel_arrival(cls, env: simpy.Environment, *args, **kwargs):
+        """
         This method is responsible for the arrival of the vessel
         and starting point of the simulation.
         Args:
             env (simpy.Environment): The simulation environment.
         """
         pass
-            
+
     @property
     @abstractmethod
     def is_empty(self) -> bool:
@@ -55,8 +55,8 @@ class VesselABC(SimpyResourceABC):
 
 class CraneABC(SimpyResourceABC):
     @abstractmethod
-    def interact_with_vessel_and_truck(self,  vessel: VesselABC, truck: "TruckABC") :
-        """ 
+    def interact_with_vessel_and_truck(self, vessel: VesselABC, truck: "TruckABC"):
+        """
         This method is responsible for the interaction between the crane and the berth/vessel.
         Args:
             vessel (VesselABC): The vessel resource.
