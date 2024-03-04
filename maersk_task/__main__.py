@@ -1,6 +1,6 @@
 import simpy
 from maersk_task.config import config, Config
-from maersk_task.port import Port, Vessel, Crane, Truck, Report, env, logging
+from maersk_task.port import Port, Vessel, Crane, Truck, Report, env
 
 
 

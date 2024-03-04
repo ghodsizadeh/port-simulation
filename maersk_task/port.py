@@ -10,8 +10,8 @@ logging.basicConfig(level=config.log_level,
 
 
 # add loging name for the critcal logs and warning logs with red and yellow color
-logging.addLevelName(logging.CRITICAL, f"\033[1;31mWaiting\033[1;0m")
-logging.addLevelName(logging.WARNING, f"\033[1;33mArrival\033[1;0m")
+logging.addLevelName(logging.CRITICAL, "\033[1;31mWaiting\033[1;0m")
+logging.addLevelName(logging.WARNING, "\033[1;33mArrival\033[1;0m")
 
 env: simpy.Environment = simpy.Environment()
 
